@@ -22,14 +22,23 @@ class npm (
 	}
 }
 
-
 # Puppet 3.8 doesn't have the .each function and we need an alternative.
 define install_npm {
-	exec { "Installing npm ${name}":
-		path      => [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/' ],
-		cwd       => $name,
-		command   => 'npm install',
-		require   => [ Exec['install npm'] ],
-		logoutput => true,
-	}
+  if is_hash($name) {
+    exec { "Executing: ${name[command]} in ${name[path]}":
+      path      => [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/' ],
+      cwd       => $name[path],
+      command   => $name[command],
+      require   => [ Exec['install npm'] ],
+      logoutput => true
+    }
+  } else {
+    exec { "Executing: npm install in ${name}":
+      path      => [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/' ],
+      cwd       => $name,
+      command   => 'npm install',
+      require   => [ Exec['install npm'] ],
+      logoutput => true
+    }
+  }
 }
